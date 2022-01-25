@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  db:
+    image: "postgres:14.1"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=root

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="index.css">
+  <script type="module">
+    import { findIncreasingSequences, findIncreasingSequenceById } from './increasing-sequence.service.js';
+
+    const [numberSequences, numberElements, maxValue] = [100, 100, 1000];
+    const data = [...Array(numberSequences)].map(
+      () => [...Array(numberElements)]
+        .map(() => Math.floor(Math.random() * maxValue)).join(',')
+    ).join('\n');
+    const formData = new FormData();
+    formData.append(
+      'sequences',
+      new File([data], 'sequences', { type: "text/plain" }),
+      'sequences'
+    );
+    const { taskId } = await fetch('sequences', {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+
+    const statusEl = document.querySelector('.status');
+    const sse = new EventSource(`tasks/${encodeURIComponent(taskId)}/subscribe`);
+    sse.addEventListener('message', async ({ data }) => {
+      data = data.replaceAll('"', '');
+      statusEl.classList.remove('PENDING', 'ERROR', 'FINISHED');
+      statusEl.classList.add(data);
+      if (data === 'FINISHED') {
+        const incrSeqs = await findIncreasingSequences();
+        const incrSeqsEl = document.querySelector('.increasing-sequences');
+        incrSeqs.forEach(e => {
+          const li = document.createElement('li');
+          li.textContent = e.created_at;
+          li.addEventListener('click', () => handleSequenceSelected(e.id));
+          incrSeqsEl.append(li);
+        });
+      }
+    });
+    sse.addEventListener('error', e => {
+      console.error(e);
+      sse.close();
+    });
+
+    async function handleSequenceSelected(id) {
+      const sequences = await findIncreasingSequenceById(id)
+        .then(is => JSON.parse(is.sequences));
+      const seqEl = document.querySelector('.sequences');
+      for (let child = seqEl.firstChild; child != null; child = seqEl.firstChild) {
+        seqEl.removeChild(child);
+      }
+      sequences.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = s.join(', ');
+        seqEl.append(li);
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <h3>Computation status:</h3>
+  <div class="status">
+    <div class="error">Some error happened!</div>
+    <div class="processing">Processing ...</div>
+    <div class="finished">Finished!</div>
+  </div>
+  <h3>Available results:</h3>
+  <ul class="increasing-sequences"></ul>
+  <h3>Selected result:</h3>
+  <ul class="sequences"></ul>
+</body>
+
+</html>

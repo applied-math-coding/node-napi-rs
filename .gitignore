@@ -1,0 +1,7 @@
+node_modules
+dist
+algorithms/target
+*.node
+todo
+.env
+algorithms/index.*

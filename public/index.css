@@ -1,0 +1,15 @@
+.status > div {
+  display: none;
+}
+
+.status.PENDING > .processing{
+  display: block;
+}
+
+.status.ERROR > .error{
+  display: block;
+}
+
+.status.FINISHED > .finished{
+  display: block;
+}

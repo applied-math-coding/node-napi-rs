@@ -5,7 +5,7 @@ This small repo presents a sample application for using napi-rs from within Node
 It contains:<br>
 1. An express REST-api that delegates computation requests to a Node.js extension built with napi-rs.<br>
 2. A client for the browser that requests computations on a list of randomly generated data, that is, computation of the longest increasing sequences.<br>
-3. A SSE connection that informs the client when the result as ready.<br>
+3. A SSE connection that informs the client when the result is ready.<br>
 4. A Postgres database that stores all results.<br><br>
 
 The build process together with all napi-rs backed code is located within 'algorithms'.<br>
